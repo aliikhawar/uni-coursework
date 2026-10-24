@@ -5,5 +5,10 @@ public class TradeEvent {
     protected long timestamp;
     protected double baseprice;
 
-    
+    public TradeEvent(String senderId, long timestamp, double baseprice) {
+        this.senderId = senderId;
+        this.timestamp = timestamp;
+        this.baseprice = baseprice;
+
+    }
 }
