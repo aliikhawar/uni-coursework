@@ -57,3 +57,41 @@ public class InventoryCatalogManager {
                     Thread.currentThread().interrupt();
                     return;
                 }
+
+
+
+                for (int j = 0; j < OPERATIONS; j++) {
+                    String id = productIds[(j + workerId) % PRODUCTS];
+
+                    if (concurrent) {
+                        catalog.compute(id, (key, stock) -> stock + 1);
+                    } else {
+                        synchronized (catalog) {
+                            int stock = catalog.get(id);
+                            catalog.put(id, stock + 1);
+                        }
+                    }
+                }
+            });
+        }
+
+        ready.await();
+
+        long start = System.nanoTime();
+        startGate.countDown();
+
+        pool.shutdown();
+
+        if (!pool.awaitTermination(5, TimeUnit.MINUTES)) {
+            pool.shutdownNow();
+            throw new IllegalStateException("Benchmark timed out");
+        }
+
+        double seconds = (System.nanoTime() - start) / 1_000_000_000.0;
+        long totalOperations = (long) WORKERS * OPERATIONS;
+
+        long finalStock = 0;
+
+        for (int stock : catalog.values()) {
+            finalStock += stock;
+        }
