@@ -20,3 +20,22 @@ public class InventoryCatalogManager {
 
         runBenchmark("SynchronizedMap", catalog, false);
     }
+
+
+      public void benchmarkConcurrentMap() throws InterruptedException {
+        Map<String, Integer> catalog = new ConcurrentHashMap<>();
+
+        runBenchmark("ConcurrentHashMap", catalog, true);
+    }
+
+    private void runBenchmark(String name,
+                              Map<String, Integer> catalog,
+                              boolean concurrent)
+            throws InterruptedException {
+
+        String[] productIds = new String[PRODUCTS];
+
+        for (int i = 0; i < PRODUCTS; i++) {
+            productIds[i] = "Product-" + i;
+            catalog.put(productIds[i], 0);
+        }
