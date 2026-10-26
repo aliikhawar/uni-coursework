@@ -39,3 +39,21 @@ public class InventoryCatalogManager {
             productIds[i] = "Product-" + i;
             catalog.put(productIds[i], 0);
         }
+
+           ExecutorService pool = Executors.newFixedThreadPool(WORKERS);
+
+        CountDownLatch ready = new CountDownLatch(WORKERS);
+        CountDownLatch startGate = new CountDownLatch(1);
+
+        for (int i = 0; i < WORKERS; i++) {
+            final int workerId = i;
+
+            pool.submit(() -> {
+                ready.countDown();
+
+                try {
+                    startGate.await();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
