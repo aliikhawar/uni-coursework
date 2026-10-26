@@ -21,8 +21,7 @@ public class InventoryCatalogManager {
         runBenchmark("SynchronizedMap", catalog, false);
     }
 
-
-      public void benchmarkConcurrentMap() throws InterruptedException {
+    public void benchmarkConcurrentMap() throws InterruptedException {
         Map<String, Integer> catalog = new ConcurrentHashMap<>();
 
         runBenchmark("ConcurrentHashMap", catalog, true);
@@ -40,7 +39,7 @@ public class InventoryCatalogManager {
             catalog.put(productIds[i], 0);
         }
 
-           ExecutorService pool = Executors.newFixedThreadPool(WORKERS);
+        ExecutorService pool = Executors.newFixedThreadPool(WORKERS);
 
         CountDownLatch ready = new CountDownLatch(WORKERS);
         CountDownLatch startGate = new CountDownLatch(1);
@@ -57,8 +56,6 @@ public class InventoryCatalogManager {
                     Thread.currentThread().interrupt();
                     return;
                 }
-
-
 
                 for (int j = 0; j < OPERATIONS; j++) {
                     String id = productIds[(j + workerId) % PRODUCTS];
@@ -95,3 +92,25 @@ public class InventoryCatalogManager {
         for (int stock : catalog.values()) {
             finalStock += stock;
         }
+
+        System.out.println("\n" + name);
+        System.out.println("Workers: " + WORKERS);
+        System.out.println("Transactions per worker: " + OPERATIONS);
+        System.out.println("Total transactions: " + totalOperations);
+        System.out.println("Final stock total: " + finalStock);
+        System.out.println("Correct total: " + (finalStock == totalOperations));
+
+        System.out.printf("Execution time: %.3f ms%n", seconds * 1000);
+        System.out.printf(
+                "Throughput: %.2f operations/second%n",
+                totalOperations / seconds
+        );
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        InventoryCatalogManager manager = new InventoryCatalogManager();
+
+        manager.benchmarkSynchronizedMap();
+        manager.benchmarkConcurrentMap();
+    }
+}
